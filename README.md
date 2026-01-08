@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OpenMCP Gateway Frontend
 
-## Getting Started
+OpenMCP Gateway 的前端管理控制台。基于 [Next.js](https://nextjs.org/) 和 [React](https://react.dev/) 构建，用于管理 MCP 服务器、生成访问令牌以及用户管理。
 
-First, run the development server:
+OpenMCP Gateway 后端仓库: [openmcp-gateway](https://github.com/li1553770945/openmcp-gateway)
+
+## 🛠 技术栈
+
+- **框架**: [Next.js 22+](https://nextjs.org/) (App Router)
+- **语言**: TypeScript
+- **样式**: [Tailwind CSS](https://tailwindcss.com/)
+- **组件库**: [Shadcn UI](https://ui.shadcn.com/) (推荐) 或 Ant Design
+- **状态管理**: Zustand
+- **数据请求**: SWR 
+
+## 🚀 快速开始
+
+### 1. 环境准备
+
+确保你的本地环境已安装：
+- Node.js >= 22.18.0
+- yarn 
+
+### 2. 安装依赖
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. 配置环境变量
+创建 `.env.local` 文件并添加以下内容：
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+根据你的后端 API 地址修改 `NEXT_PUBLIC_API_BASE_URL`。
 
-## Learn More
+### 4. 运行开发服务器
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+yarn dev
+```
