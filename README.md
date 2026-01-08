@@ -9,7 +9,7 @@ OpenMCP Gateway 后端仓库: [openmcp-gateway](https://github.com/li1553770945/
 - **框架**: [Next.js 22+](https://nextjs.org/) (App Router)
 - **语言**: TypeScript
 - **样式**: [Tailwind CSS](https://tailwindcss.com/)
-- **组件库**: [Shadcn UI](https://ui.shadcn.com/) (推荐) 或 Ant Design
+- **组件库**: [Shadcn UI](https://ui.shadcn.com/) 或其他基于 Shadcn UI 的组件库
 - **状态管理**: Zustand
 - **数据请求**: SWR 
 
@@ -31,7 +31,7 @@ yarn install
 创建 `.env.local` 文件并添加以下内容：
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
+NEXT_PUBLIC_API_BASE_URL=http://localhost:9000/api
 ```
 
 根据你的后端 API 地址修改 `NEXT_PUBLIC_API_BASE_URL`。
