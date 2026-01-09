@@ -6,6 +6,18 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { mcpServerService } from "@/services/mcpServerService";
 import { UpdateMCPServerReq } from "@/types/mcpserver";
@@ -38,6 +50,7 @@ export default function EditMCPServerPage({ params }: { params: Promise<{ id: st
   const [newTokenDesc, setNewTokenDesc] = useState("");
   const [generating, setGenerating] = useState(false);
   const [lastGeneratedToken, setLastGeneratedToken] = useState<string | null>(null);
+  const [tokenToDelete, setTokenToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     if (server) {
@@ -53,13 +66,8 @@ export default function EditMCPServerPage({ params }: { params: Promise<{ id: st
   }, [server]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-        const checked = (e.target as HTMLInputElement).checked;
-        setFormData(prev => ({ ...prev, [name]: checked }));
-    } else {
-        setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -105,18 +113,19 @@ export default function EditMCPServerPage({ params }: { params: Promise<{ id: st
     }
   };
 
-  const handleDeleteToken = async (tokenId: number) => {
-      if (confirm("确定要删除这个 Token 吗？")) {
-          try {
-              await mcpServerService.deleteToken(tokenId);
-              toast.success("Token 删除成功");
-              mutate();
-          } catch (e) {
-              toast.error("删除 Token 失败", {
-                  description: e instanceof Error ? e.message : "发生未知错误"
-              });
-          }
-      }
+  const handleDeleteToken = async () => {
+    if (!tokenToDelete) return;
+    try {
+        await mcpServerService.deleteToken(tokenToDelete);
+        toast.success("Token 删除成功");
+        mutate();
+    } catch (e) {
+        toast.error("删除 Token 失败", {
+            description: e instanceof Error ? e.message : "发生未知错误"
+        });
+    } finally {
+        setTokenToDelete(null);
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -170,44 +179,38 @@ export default function EditMCPServerPage({ params }: { params: Promise<{ id: st
 
                 <div className="space-y-2">
                 <Label htmlFor="description">描述</Label>
-                <textarea
+                <Textarea
                     id="description"
                     name="description"
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="min-h-[80px]"
                     value={formData.description}
                     onChange={handleChange}
                 />
                 </div>
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                     <div className="flex items-center space-x-2 border p-3 rounded-md flex-1">
-                        <input
-                            type="checkbox"
-                            id="isPublic"
-                            name="isPublic"
-                            checked={formData.isPublic}
-                            onChange={handleChange}
-                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                        />
-                        <div className="flex flex-col">
+                     <div className="flex items-center justify-between border p-3 rounded-md flex-1">
+                        <div className="flex flex-col space-y-0.5">
                             <Label htmlFor="isPublic" className="cursor-pointer">公开服务</Label>
                             <span className="text-xs text-muted-foreground">允许其他人查看此服务</span>
                         </div>
+                        <Switch
+                            id="isPublic"
+                            checked={formData.isPublic}
+                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isPublic: checked }))}
+                        />
                     </div>
 
-                    <div className="flex items-center space-x-2 border p-3 rounded-md flex-1">
-                        <input
-                            type="checkbox"
-                            id="openProxy"
-                            name="openProxy"
-                            checked={formData.openProxy}
-                            onChange={handleChange}
-                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                        />
-                         <div className="flex flex-col">
+                    <div className="flex items-center justify-between border p-3 rounded-md flex-1">
+                         <div className="flex flex-col space-y-0.5">
                             <Label htmlFor="openProxy" className="cursor-pointer">开启代理</Label>
                              <span className="text-xs text-muted-foreground">允许通过网关代理请求</span>
                         </div>
+                        <Switch
+                            id="openProxy"
+                            checked={formData.openProxy}
+                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, openProxy: checked }))}
+                        />
                     </div>
                 </div>
 
@@ -274,7 +277,7 @@ export default function EditMCPServerPage({ params }: { params: Promise<{ id: st
                                                     <Copy className="h-4 w-4" />
                                                 </Button>
                                            )}
-                                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteToken(t.id)} title="删除">
+                                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setTokenToDelete(t.id)} title="删除">
                                               <Trash2 className="h-4 w-4" />
                                           </Button>
                                       </div>
@@ -288,6 +291,21 @@ export default function EditMCPServerPage({ params }: { params: Promise<{ id: st
               </CardContent>
           </Card>
       </div>
+      
+      <AlertDialog open={!!tokenToDelete} onOpenChange={(open) => !open && setTokenToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogDescription>
+              您确定要删除这个 Token 吗？此操作无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteToken} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">删除</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
