@@ -28,6 +28,7 @@ yarn install
 ```
 
 ### 3. 配置环境变量
+
 创建 `.env.local` 文件并添加以下内容：
 
 ```env

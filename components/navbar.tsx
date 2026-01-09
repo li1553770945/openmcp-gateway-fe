@@ -1,9 +1,22 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useEffect, useState } from "react";
+import { User } from "lucide-react";
 
 export function Navbar() {
+  const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
-    <nav className="border-b">
+    <nav className="border-b bg-background">
       <div className="container mx-auto flex h-16 items-center px-4">
         <div className="mr-8">
           <Link href="/" className="text-xl font-bold">
@@ -14,42 +27,42 @@ export function Navbar() {
           <Link href="/" className="transition-colors hover:text-foreground/80">
             服务列表
           </Link>
-          <Link
-            href="/mcpservers/create"
-            className="transition-colors hover:text-foreground/80"
-          >
-            创建服务
-          </Link>
+          {mounted && token && (
+             <Link
+              href="/mcpservers/create"
+              className="transition-colors hover:text-foreground/80"
+            >
+              创建服务
+            </Link>
+          )}
         </div>
         <div className="ml-auto flex items-center gap-4">
-          <Link href="/auth/login">
-            <Button variant="ghost" size="sm">
-              登录
-            </Button>
-          </Link>
-          <Link href="/auth/register">
-            <Button size="sm">注册</Button>
-          </Link>
-          <Link href="/users/me">
-             <Button variant="ghost" size="icon" title="个人中心">
-                <span className="sr-only">个人中心</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-user"
-                >
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-             </Button>
-          </Link>
+          {mounted ? (
+            token ? (
+              <>
+                 <Link href="/users/me">
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <User className="h-4 w-4" />
+                    {user?.nickname || user?.username || '用户'}
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="ghost" size="sm">
+                    登录
+                  </Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button size="sm">注册</Button>
+                </Link>
+              </>
+            )
+          ) : (
+            // Server/Hydration loading state - show nothing or skeleton to avoid flicker
+            <div className="w-20" />
+          )}
         </div>
       </div>
     </nav>
