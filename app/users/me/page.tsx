@@ -24,6 +24,7 @@ const fetcher = () => userService.getMe().then((res) => res.data);
 export default function UserProfilePage() {
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
+  const setUser = useAuthStore((state) => state.setUser);
   const { data: user, error, isLoading } = useSWR("user-me", fetcher);
   
   const [isEditing, setIsEditing] = useState(false);
@@ -39,8 +40,9 @@ export default function UserProfilePage() {
         ...prev,
         nickname: user.nickname || "",
       }));
+      setUser(user);
     }
-  }, [user]);
+  }, [user, setUser]);
 
   const handleLogout = () => {
     logout();

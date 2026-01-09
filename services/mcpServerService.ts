@@ -2,6 +2,8 @@ import { fetchClient } from '@/lib/api-client';
 import { 
   GetMCPServerListResp, 
   GetMCPServerListReq,
+  GetMCPServerCountReq,
+  GetMCPServerCountResp,
   AddMCPServerReq, 
   AddMCPServerResp, 
   UpdateMCPServerReq, 
@@ -21,6 +23,13 @@ export const mcpServerService = {
     if (params.end !== undefined) searchParams.append('end', params.end.toString());
     
     return fetchClient<GetMCPServerListResp>(`/api/mcpservers?${searchParams.toString()}`);
+  },
+
+  async getMCPServerCount(params: GetMCPServerCountReq): Promise<GetMCPServerCountResp> {
+    const searchParams = new URLSearchParams();
+    if (params.scope) searchParams.append('scope', params.scope);
+    
+    return fetchClient<GetMCPServerCountResp>(`/api/mcpservers/count?${searchParams.toString()}`);
   },
 
   async getMCPServer(id: number): Promise<GetMCPServerResp> {

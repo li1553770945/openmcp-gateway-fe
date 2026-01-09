@@ -34,15 +34,23 @@ export default function Home() {
   const { user } = useAuthStore();
   const [scope, setScope] = useState<'public' | 'self'>('public');
   const [page, setPage] = useState(1);
-  const pageSize = 9;
+  const [pageSize, setPageSize] = useState(9);
 
   const start = (page - 1) * pageSize;
   const end = page * pageSize;
 
   const { data, error, isLoading, mutate } = useSWR(
-    [`/api/mcpservers`, scope, page],
+    [`/api/mcpservers`, scope, page, pageSize],
     () => mcpServerService.getMCPServers({ scope, start, end })
   );
+
+  const { data: countData } = useSWR(
+    [`/api/mcpservers/count`, scope],
+    () => mcpServerService.getMCPServerCount({ scope })
+  );
+
+  const totalCount = countData?.data?.count || 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const handleDelete = async (id: number) => {
     if (confirm("确定要删除这个服务吗？")) {
@@ -67,7 +75,7 @@ export default function Home() {
   };
 
   const servers = data?.data || [];
-  const hasMore = servers.length === pageSize;
+
 
   return (
     <div className="container mx-auto py-10 px-4 min-h-screen flex flex-col">
@@ -92,6 +100,18 @@ export default function Home() {
                     我的服务
                 </button>
              </div>
+             <select 
+                className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                value={pageSize}
+                onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPage(1);
+                }}
+             >
+                 <option value={9}>9 / 页</option>
+                 <option value={20}>20 / 页</option>
+                 <option value={50}>50 / 页</option>
+             </select>
              <Link href="/mcpservers/create">
                 <Button className="gap-2">
                     <Plus className="h-4 w-4" /> 添加服务
@@ -123,7 +143,7 @@ export default function Home() {
                                  <div className="flex items-center gap-2 mt-1">
                                     <span className={`text-[10px] px-2 py-0.5 rounded-full border ${server.isPublic ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'} flex items-center gap-1`}>
                                         {server.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-                                        {server.isPublic ? 'Public' : 'Private'}
+                                        {server.isPublic ? '公开' : '私有'}
                                     </span>
                                     {server.openProxy && (
                                         <span className="text-[10px] px-2 py-0.5 rounded-full border bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1">
@@ -191,24 +211,28 @@ export default function Home() {
       )}
 
       {/* Pagination */}
-      <div className="mt-auto flex justify-center items-center gap-4 py-4">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1 || isLoading}
-          >
-              <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm font-medium">Page {page}</span>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => setPage(p => p + 1)}
-            disabled={!hasMore || isLoading}
-          >
-              <ChevronRight className="h-4 w-4" />
-          </Button>
+      <div className="mt-auto flex flex-col sm:flex-row justify-between items-center gap-4 py-4 pt-8 border-t">
+          <div className="text-sm text-muted-foreground">
+              共 {totalCount} 个服务，第 {page} / {totalPages} 页
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1 || isLoading}
+            >
+                <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || isLoading}
+            >
+                <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
       </div>
     </div>
   );

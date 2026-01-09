@@ -55,6 +55,16 @@ export interface GetMCPServerListReq {
 
 export type GetMCPServerListResp = BaseResponse<MCPServerData[]>;
 
+export interface GetMCPServerCountReq {
+  scope?: 'public' | 'self';
+}
+
+export interface GetMCPServerCountRespData {
+  count: number;
+}
+
+export type GetMCPServerCountResp = BaseResponse<GetMCPServerCountRespData>;
+
 export type GetMCPServerResp = BaseResponse<MCPServerDetailData>;
 
 export interface GenerateTokenReq {
